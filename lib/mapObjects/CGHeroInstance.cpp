@@ -1007,6 +1007,10 @@ si32 CGHeroInstance::getManaNewTurn() const
 		return std::max(mana, manaLimit());
 	}
 	si32 res = mana + manaRegain();
+	if(cb->gameState()->getPlayerState(tempOwner)->isHuman())	// Jiin : Mana regen tweak
+	{
+		res += level;
+	}
 	res = std::min(res, manaLimit());
 	res = std::max(res, mana);
 	res = std::max(res, 0);
@@ -1475,13 +1479,22 @@ void CGHeroInstance::levelUpAutomatically(CRandomGenerator & rand)
 	{
 		const auto primarySkill = nextPrimarySkill(rand);
 		setPrimarySkill(primarySkill, 1, false);
-
+				
 		auto proposedSecondarySkills = getLevelUpProposedSecondarySkills(rand);
 
 		const auto secondarySkill = nextSecondarySkill(rand);
 		if(secondarySkill)
 		{
 			setSecSkillLevel(*secondarySkill, 1, false);
+		}
+
+		// Jiin : levelup tweak
+		if(cb->gameState()->getPlayerState(tempOwner)->isHuman())
+		{
+			setPrimarySkill(PrimarySkill::ATTACK, 3, false);
+			setPrimarySkill(PrimarySkill::DEFENSE, 3, false);
+			setPrimarySkill(PrimarySkill::SPELL_POWER, 3, false);
+			setPrimarySkill(PrimarySkill::KNOWLEDGE, 3, false);
 		}
 
 		//TODO why has the secondary skills to be passed to the method?
